@@ -5,5 +5,5 @@ format: html
 
 - [Introduction to Quarto](Intro to Quarto.html)
 - Cleaning and Wrangling Data
-- Data Visualization
+- [Data Visualization](data-visualization.html)
 - Spacial Data in R
