@@ -1,0 +1,75 @@
+---
+title: "Census Data"
+format: html
+---
+
+```{r}
+library(tidycensus)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+```{r}
+census_api_key("e74c57cbe0b855ba881c0e78710c399668c996aa", install = T)
+```
+
+
+## Decennial pop by state 2020
+
+```{r}
+pop_2020 <- get_decennial(
+  geography = "state",
+  variable = "P1_001N",
+  year = 2020
+)
+```
+
+
+
+## Getting table P2
+
+```{r}
+table_p2_2020 <- get_decennial(
+  geography = "state",
+  table = "P2", 
+  year = 2020
+)
+
+unique(table_p2_2020$variable)
+```
+
+```{r}
+var_pl_2020 <- load_variables(2020, "pl")
+
+var_dhc_2020 <- load_variables(2020, "dhc")
+```
+
+
+## Delta counties information
+
+```{r}
+delta_hisp <- get_decennial(
+  geography = "county",
+  state = "CA",
+  county = c("Alameda", "Contra Costa", "Sacramento", "San Joaquin", 
+             "Solano", "Yolo"), #to identify counties, need to specify state
+  variables = "P2_002N",
+  year = 2020
+)
+
+delta_hisp_t <- get_decennial(
+  geography = "tract", #geography changes what level you get the data at, result has all of the tracts in the below counties
+  state = "CA",
+  county = c("Alameda", "Contra Costa", "Sacramento", "San Joaquin", 
+             "Solano", "Yolo"), #to identify counties, need to specify state; could also skip this line and then filter resulting dataset by counties after
+  variables = "P2_002N",
+  year = 2020
+)
+```
+
+
+
+
+
+
