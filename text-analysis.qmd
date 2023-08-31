@@ -1,0 +1,133 @@
+---
+title: "Text analysis"
+format: html
+---
+
+
+## load libraries
+```{r}
+library(gutenbergr) # access public domain texts from Project Gutenberg
+library(tidytext) # text mining using tidy tools
+library(dplyr) # wrangle data
+library(ggplot2) # plot data
+```
+
+## load text
+```{r}
+gutenberg_works(title == "Frankenstein; Or, The Modern Prometheus") # frankenstein text
+```
+
+## Get ID number
+```{r}
+frankenstein_corp <- gutenberg_works(title == "Frankenstein; Or, The Modern Prometheus") # frankenstein text
+frankenstein_corp <- gutenberg_download(41445)
+```
+
+## unnest tokens
+```{r}
+tidy_frankenstein <- unnest_tokens(frankenstein_corp, word, text)
+```
+
+## remove stopwords
+```{r}
+antijoin_frankenstein <- tidy_frankenstein %>% 
+  anti_join(stop_words)
+```
+
+## top 10 most frequent words
+```{r}
+topten_frankenstein <- antijoin_frankenstein %>% 
+  count(word) %>% 
+  slice_max(order_by = n, n = 10)
+```
+
+
+## plot top ten
+```{r}
+ggplot()+
+  geom_col(data = topten_frankenstein, aes(x = reorder(word, n), y = n))+
+  coord_flip()+
+  theme_bw()
+ggsave("Figures/frankenstein_top_ten.jpg", width = 12, height = 6, units = "in")
+  
+```
+
+# Exercise: Explore Unstructured Text Data from a PDF
+
+## Load Libraries
+
+```{r}
+library(tidytext) # tidy text tools
+library(quanteda) # create a corpus
+library(pdftools) # read in data
+library(dplyr) # wrangle data
+library(stringr) # string manipulation
+library(ggplot2) # plots
+library(wordcloud)
+```
+
+## read-in data
+```{r}
+path_df <- "data/dsc_ch04.pdf"
+dp_ch04 <- pdftools::pdf_text(path_df)
+class(dp_ch04)
+
+```
+## Turn into corpus
+```{r}
+corpus_dp_ch4 <- quanteda::corpus(dp_ch04)
+```
+
+## make corpus tidy
+
+```{r}
+tidy_dp_ch6 <- tidytext::tidy(corpus_dp_ch4) #package::function (clarifies what package to use)
+#tidy text will remove punction from sentences, might want different package of function if you don't want to lose punctuation
+
+```
+
+
+## tokenize data
+
+```{r}
+token_dp_ch6 <- tidy_dp_ch6 %>% 
+  unnest_tokens(word, text)
+```
+
+## add words to stop_plus
+```{r}
+stop_words_plus <- rbind(stop_words, data.frame(word = c("4", "al"), lexicon = rep("Extra", 2)))
+```
+
+## remove stop words
+
+```{r}
+clean_dp_ch6 <- token_dp_ch6 %>% 
+  anti_join(stop_words_plus)
+```
+## top ten words
+
+```{r}
+top_ten_dp_ch6 <- clean_dp_ch6 %>% 
+  count(word) %>% 
+  slice_max(n = 10, order_by = n)
+```
+
+## plot top ten
+
+```{r}
+ggplot()+
+  geom_col(data = top_ten_dp_ch6, aes(x = reorder(word, n), y = n), fill = "purple")+
+  labs(title = "Top Ten Words in the Delta Plan Ch. 6", x = "Frequency", y = "Word")+
+  coord_flip()+
+  theme_bw()
+```
+
+
+## make word cloud
+```{r}
+wordcloud(words = top_ten_dp_ch6$word,
+          freq = top_ten_dp_ch6$n)
+```
+
+
