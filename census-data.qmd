@@ -69,7 +69,39 @@ delta_hisp_t <- get_decennial(
 ```
 
 
+## Exercise: Getting census data ready for analysis
+```{r}
+#reloaded libraries above
+# make dataframe of data for hispanic and white populations
 
+delta_tract_hw <- get_decennial(
+  geography = "tract",
+  state = "CA",
+  county = c("Alameda", "Contra Costa", "Sacramento", "San Joaquin", "Solano", "Yolo"),
+  variables = c("P2_002N", "P2_005N"),
+  summary_var = "P2_001N",
+  year = 2020
+)
+```
 
+### add percent column
 
+```{r}
+percent_delta_tract <- delta_tract_hw %>% 
+  mutate(percent = 100*(value/summary_value)) %>% 
+  tidyr::separate(NAME, into = c("tract", "county", "state"), sep = ",")
+```
+
+### plot data
+
+```{r}
+percent_delta_tract %>% 
+  ggplot(aes(x = percent, fill = county))+
+  geom_density(alpha = 0.3)+
+  facet_wrap(~variable)+
+  theme_bw()
+```
+```{r}
+#need to load scales package
+```
 
